@@ -79,18 +79,54 @@ class Goblin (object):
         defenseRoll = 3*Dice(6)
         self.defense = defenseRoll.highest(2).value
 
-
-class Dungeon(object):
-    def __init__(self):
-        pass
-
-class City(object):
-    def __init__(self):
-        pass
-
 class Room(object):
     def __init__(self):
-        pass
+        self.name="Room Name"
+        self.description="Room Description"
+        self.exits=[]
+
+
+def dungeon():
+    while True:
+        room = Room()
+
+        room.name = "Dark Cave"
+        cavesizeRoll = random.randint(0,3)
+        if cavesizeRoll == 0:
+            cavesize = " a very dark and cramped maze which you find difficult to maneuver"
+        elif cavesizeRoll == 1:
+            cavesize = "a narrow cave. You cannot see much, but you have enough room to move around"
+        elif cavesizeRoll == 2:
+            cavesize = "a long open corridor of rock and crystals"
+        else:
+            cavesize = "a massive wide-open geode that you are standing inside of"
+
+        wetnessRoll = random.randint(0,3)
+        if wetnessRoll == 0:
+            wetness = "the air is dry as you can hear the clicks of your heels against the rock below"
+        elif wetnessRoll == 1:
+            wetness = "the air is a little damp as you can smell the must and the mildew"
+        elif wetnessRoll == 2:
+            wetness = "it is very damp as you can see water seeping through the walls of the cave"
+        else:
+            wetness = "you are soaking wet since the cave system is nearly flooded in this part"
+
+        exitRoll = random.randint(0,3)
+        if exitRoll == 0:
+            room.exits.append("north")
+        elif exitRoll == 1:
+            room.exits.append("west")
+        elif exitRoll == 2:
+            room.exits.append("south")
+        else:
+            room.exits.append("east")
+
+        room.description = "This part of the cave is {0} and {1}.\n\nExits: {2}".format(cavesize,wetness, ", ".join(room.exits))
+
+        yield room
+ 
+
+
 
 # This class defines a series of commands, such as choosing a name for a character and the Exit function.
 
@@ -98,6 +134,8 @@ class Game (object):
     def __init__(self):
         self.character = None
         self.exit = False
+        self.room = None
+        self.dungeon = dungeon()
 
     def run(self):
         while not self.exit:
@@ -111,15 +149,44 @@ class Game (object):
 
                 self.character = Character(name)
 
+            if not self.room:
+                self.home()
+                continue
+
+            self.look()
+            print("\n")
+
+
             cmd = input("{0} HP:{1}/{2} ATT:{3} DEF:{4}>>>".format(self.character.name, self.character.health,self.character.maxHealth, self.character.attack, self.character.defense))
 
             cmd = cmd.strip()
 
             if cmd.lower() == "exit":
                 self.exit = True
+            elif cmd.lower() in self.room.exits:
+                self.room = next(self.dungeon)
+
             else:
                 print("Warning: Command is not recognized.")
 
             print("\n")
+
+    def look(self):
+        print("\n\n")
+        print(self.room.name)
+        print("\n\n")
+        print("You decide to take a look around.")
+        print("\n\n")
+        print(self.room.description)
+        print("\n")
+
+    def home(self):
+        homeRoom = Room()
+        homeRoom.name = "Great Hall"
+        homeRoom.description = "You are in your great hall, a safe place where you can rest, heal and ressuply. To the south, you can see a doorway that leads into an unexplored labyrinth of caves and eerie tunnels. Above the doorway lay an inscription, but you cannot make sense of the markings.\n\nExits: south"
+        homeRoom.exits = ["south"]
+        self.room = homeRoom
+
+
 
 Game().run()
