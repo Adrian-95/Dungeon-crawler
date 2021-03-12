@@ -4,7 +4,8 @@ Python 3 dungeon crawler game with scripted content as well as randomly generate
 This game is a great exercise for exploring Object-Oriented programming in Python. 
 
 Prerequisites: 
-
+```
 Python 3.7+
 random package
 
+```
