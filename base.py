@@ -84,6 +84,7 @@ class Room(object):
         self.name="Room Name"
         self.description="Room Description"
         self.exits=[]
+        self.goblins=[]
 
 
 def dungeon():
@@ -123,6 +124,20 @@ def dungeon():
 
         room.description = "This part of the cave is {0} and {1}.\n\nExits: {2}".format(cavesize,wetness, ", ".join(room.exits))
 
+        goblinRoll = random.randint(0,4)
+        if goblinRoll == 0:
+            pass
+        elif goblinRoll == 1:
+            room.goblins.append(Goblin())
+        elif goblinRoll == 2:
+            room.goblins.append(Goblin())
+        elif goblinRoll == 3:
+            room.goblins.append(Goblin())
+        else:
+            room.goblins.append(Goblin())
+            room.goblins.append(Goblin())
+
+    
         yield room
  
 
@@ -165,6 +180,8 @@ class Game (object):
                 self.exit = True
             elif cmd.lower() in self.room.exits:
                 self.room = next(self.dungeon)
+            elif cmd.lower() == "look":
+                continue
 
             else:
                 print("Warning: Command is not recognized.")
@@ -175,11 +192,11 @@ class Game (object):
         print("\n\n")
         print(self.room.name)
         print("\n\n")
-        print("You decide to take a look around.")
-        print("\n\n")
         print(self.room.description)
+        if self.room.goblins:
+            print("\n")
+            print("Goblins:{0}".format(", ".join([g.name for g in self.room.goblins])))
         print("\n")
-
     def home(self):
         homeRoom = Room()
         homeRoom.name = "Great Hall"
