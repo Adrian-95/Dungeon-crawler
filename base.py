@@ -220,6 +220,10 @@ class Game (object):
             self.cleanup()
             print("\n")
 
+            if not self.character: 
+                self.room = None
+                continue
+
 
             cmd = input("{0} HP:{1}/{2} ATT:{3} DEF:{4}>>>".format(self.character.name, self.character.health,self.character.maxHealth, self.character.attack, self.character.defense))
 
@@ -230,7 +234,12 @@ class Game (object):
             elif cmd.lower() in self.room.exits:
                 self.room = next(self.dungeon)
             elif cmd.lower() == "kill goblin" or cmd.lower() == "attack goblin":
-                self.character.fight(self.room.goblins[0])
+                if self.room.goblins:
+                    self.character.fight (self.room.goblins[0])
+                else:
+                    print("\n")
+                    print("There are no goblins around")
+                    print("\n")
             elif cmd.lower() == "look":
                 continue
 
@@ -260,6 +269,7 @@ class Game (object):
             print("Game Over")
             print("\n")
             self.character = None
+            return
 
         # Goblin Death
         livingGoblins = []
