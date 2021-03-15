@@ -49,6 +49,30 @@ class Character (object):
         defenseRoll = 3*Dice(6)
         self.defense = defenseRoll.highest(2).value
         self.morale = 3
+        self.weapon = None
+
+    def fight(self, goblin):
+        attack = Dice(self.attack)
+        defense = Dice(goblin.defense)
+        goblin.aggression = 10
+
+        if not self.weapon:
+            if defense > attack:
+                print("\n")
+                print("You take a swing at the {0}, but it evades the attack and prepares to retaliate".format (goblin.name.lower()))
+                print("\n")
+
+            elif attack == defense: 
+                print("\n")
+                print("You slash the {0}, although its armor absorbs some of the damage".format (goblin.name.lower()))
+                print("\n")
+                goblin.health -= attack/2
+            
+            elif attack > defense:
+                print("\n")
+                print("You deliver a staggering blow as the {0} lets out a loud shriek".format (goblin.name.lower()))
+                print("\n")
+                goblin.health -= attack
 
 # This class defines the Goblins, a hostile race which can be encountered in the dungeon.
 
@@ -78,6 +102,29 @@ class Goblin (object):
         self.attack = attackRoll.highest(2).value
         defenseRoll = 3*Dice(6)
         self.defense = defenseRoll.highest(2).value
+
+    def fight(self, player):
+        attack = Dice(self.attack)
+        defense = Dice(player.defense)
+
+        if defense > attack:
+            print("\n")
+            print("The {0} takes a swing at you but you manage to dodge the attack, thus taking no damage".format (self.name.lower()))
+            print("\n")
+
+        elif attack == defense: 
+            print("\n")
+            print("You skilfully block the strike, but still receive some damage as the {0} swipes at you".format (self.name.lower()))
+            print("\n")
+            player.health -= attack/2
+        
+        elif attack > defense:
+            print("\n")
+            print("The {0} strikes you with a crushing blow, tearing through your defenses".format (self.name.lower()))
+            print("\n")
+            player.health -= attack
+
+
 
 class Room(object):
     def __init__(self):
@@ -169,6 +216,8 @@ class Game (object):
                 continue
 
             self.look()
+            self.combat()
+            self.cleanup()
             print("\n")
 
 
@@ -180,6 +229,8 @@ class Game (object):
                 self.exit = True
             elif cmd.lower() in self.room.exits:
                 self.room = next(self.dungeon)
+            elif cmd.lower() == "kill goblin" or cmd.lower() == "attack goblin":
+                self.character.fight(self.room.goblins[0])
             elif cmd.lower() == "look":
                 continue
 
@@ -187,6 +238,41 @@ class Game (object):
                 print("Warning: Command is not recognized.")
 
             print("\n")
+
+    def combat(self):
+        for goblin in self.room.goblins:
+            if goblin.aggression == 10:
+                goblin.fight(self.character)
+                self.character.fight(goblin)
+            elif goblin.aggression > 4:
+                coinFlip = random.randint(0, 1)
+                if coinFlip:
+                    goblin.fight(self.character)
+                    goblin.aggression = 10
+                    self.character.fight(goblin)
+
+    def cleanup(self):
+        # Player Death
+        if self.character.health < 1:
+            print("\n")
+            print("YOU DIED")
+            print("\n")
+            print("Game Over")
+            print("\n")
+            self.character = None
+
+        # Goblin Death
+        livingGoblins = []
+        for goblin in self.room.goblins:
+            if goblin.health < 1:
+                if not self.character.weapon:
+                    print("\n")
+                    print("The {0} lets out one final shriek before it falls dead to the ground".format(goblin.name.lower()))
+                    print("\n")
+            else:
+                livingGoblins.append(goblin)
+        self.room.goblins = livingGoblins
+            
 
     def look(self):
         print("\n\n")
