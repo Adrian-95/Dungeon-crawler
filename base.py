@@ -134,6 +134,9 @@ class Room(object):
         self.goblins=[]
 
 
+# The dungeon is procedually generated, and there is always one exit regardless of the room size. 
+# Furthermore, it is likely to find a foe in the rooms. It is also possible, but less likely, to find two foes in one of the rooms. In this case, the player will always fight the first enemy that appears on the list, the second foe can only be attacked when the first is dead.
+
 def dungeon():
     while True:
         room = Room()
@@ -283,6 +286,7 @@ class Game (object):
                 livingGoblins.append(goblin)
         self.room.goblins = livingGoblins
             
+# The look command will repeat the room description, available exits and living enemies.
 
     def look(self):
         print("\n\n")
