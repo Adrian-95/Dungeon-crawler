@@ -50,7 +50,7 @@ class Character (object):
         self.defense = defenseRoll.highest(2).value
         self.morale = 3
         self.weapon = None
-        self.gold = 10
+        self.gold = 0
 
     def fight(self, goblin):
         attack = Dice(self.attack)
@@ -141,7 +141,7 @@ class Room(object):
 # The dungeon is procedually generated, and there is always one exit regardless of the room size. 
 # Furthermore, it is likely to find a foe in the rooms. It is also possible, but less likely, to find two foes in one of the rooms. In this case, the player will always fight the first enemy that appears on the list, the second foe can only be attacked when the first is dead.
 
-def dungeon():
+def dungeon( game=None ):
     while True:
         room = Room()
 
@@ -191,6 +191,8 @@ def dungeon():
             room.goblins.append(Goblin())
             room.goblins.append(Goblin())
 
+        room.cmds = {"use orb":game.teleportHome,"orb":game.teleportHome,"warp home":game.teleportHome}
+
     
         yield room
  
@@ -204,7 +206,7 @@ class Game (object):
         self.character = None
         self.exit = False
         self.room = None
-        self.dungeon = dungeon()
+        self.dungeon = dungeon(self)
         self.chest=0
 
     def run(self):
@@ -312,6 +314,8 @@ class Game (object):
         homeRoom.exits = ["south"]
         homeRoom.cmds = {"deposit":self.deposit, "withdraw":self.withdraw}
         self.room = homeRoom
+
+    # Deposit & Withdraw functions
     
     def deposit(self):
         self.chest += self.character.gold
@@ -326,6 +330,11 @@ class Game (object):
         print("\n")
         print("You withdrew {0} gold out of your personal chest.".format(self.character.gold))
         print("\n")
+
+    # Home Teleport function
+
+    def teleportHome(self):
+        self.room = None
 
 
 Game().run()
