@@ -50,6 +50,7 @@ class Character (object):
         self.defense = defenseRoll.highest(2).value
         self.morale = 3
         self.weapon = None
+        self.gold = 10
 
     def fight(self, goblin):
         attack = Dice(self.attack)
@@ -103,6 +104,8 @@ class Goblin (object):
         defenseRoll = 3*Dice(6)
         self.defense = defenseRoll.highest(2).value
 
+        self.gold = int(Dice(11)) - 1
+
     def fight(self, player):
         attack = Dice(self.attack)
         defense = Dice(player.defense)
@@ -132,6 +135,7 @@ class Room(object):
         self.description="Room Description"
         self.exits=[]
         self.goblins=[]
+        self.cmds={}
 
 
 # The dungeon is procedually generated, and there is always one exit regardless of the room size. 
@@ -201,6 +205,7 @@ class Game (object):
         self.exit = False
         self.room = None
         self.dungeon = dungeon()
+        self.chest=0
 
     def run(self):
         while not self.exit:
@@ -228,7 +233,7 @@ class Game (object):
                 continue
 
 
-            cmd = input("{0} HP:{1}/{2} ATT:{3} DEF:{4}>>>".format(self.character.name, self.character.health,self.character.maxHealth, self.character.attack, self.character.defense))
+            cmd = input("{0} HP:{1}/{2} ATT:{3} DEF:{4} Gold:{05}>>>".format(self.character.name, self.character.health,self.character.maxHealth, self.character.attack, self.character.defense, self.character.gold))
 
             cmd = cmd.strip()
 
@@ -243,6 +248,8 @@ class Game (object):
                     print("\n")
                     print("There are no goblins around")
                     print("\n")
+            elif cmd.lower() in self.room.cmds:
+                self.room.cmds[cmd.lower()]()
             elif cmd.lower() == "look":
                 continue
 
@@ -282,6 +289,7 @@ class Game (object):
                     print("\n")
                     print("The {0} lets out one final shriek before it falls dead to the ground".format(goblin.name.lower()))
                     print("\n")
+                    self.character.gold += goblin.gold 
             else:
                 livingGoblins.append(goblin)
         self.room.goblins = livingGoblins
@@ -300,10 +308,24 @@ class Game (object):
     def home(self):
         homeRoom = Room()
         homeRoom.name = "Great Hall"
-        homeRoom.description = "You are in your great hall, a safe place where you can rest, heal and ressuply. To the south, you can see a doorway that leads into an unexplored labyrinth of caves and eerie tunnels. Above the doorway lay an inscription, but you cannot make sense of the markings.\n\nExits: south"
+        homeRoom.description = "You are in your great hall, a safe place where you can rest, heal and ressuply. You can see a chest near the fireplace, which containts all your belongings. You can also deposit gold into your safe or withdraw it. To the south, you can see a doorway that leads into an unexplored labyrinth of caves and eerie tunnels. Above the doorway lay an inscription, but you cannot make sense of the markings.\n\nExits: south"
         homeRoom.exits = ["south"]
+        homeRoom.cmds = {"deposit":self.deposit, "withdraw":self.withdraw}
         self.room = homeRoom
+    
+    def deposit(self):
+        self.chest += self.character.gold
+        self.character.gold = 0
+        print("\n")
+        print("You deposited {0} gold into your personal chest.".format(self.chest))
+        print("\n")
 
+    def withdraw(self):
+        self.character.gold += self.chest
+        self.chest = 0
+        print("\n")
+        print("You withdrew {0} gold out of your personal chest.".format(self.character.gold))
+        print("\n")
 
 
 Game().run()
