@@ -197,8 +197,6 @@ def dungeon( game=None ):
         yield room
  
 
-
-
 # This class defines a series of commands, such as choosing a name for a character and the Exit function.
 
 class Game (object):
@@ -259,6 +257,8 @@ class Game (object):
                 print("Warning: Command is not recognized.")
 
             print("\n")
+
+    # Defining the game combat mechanics
 
     def combat(self):
         for goblin in self.room.goblins:
