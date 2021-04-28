@@ -255,6 +255,10 @@ class Game (object):
                     print("\n")
             elif cmd.lower() in self.room.cmds:
                 self.room.cmds[cmd.lower()]()
+            elif cmd.lower() == "score" or cmd.lower() == "highscore":
+                print("\n")
+                print("You have slain {0} goblins thus far".format(self.character.score))
+                print("\n")
             elif cmd.lower() == "look":
                 continue
 
@@ -297,6 +301,7 @@ class Game (object):
                     print("The {0} lets out one final shriek before it falls dead to the ground".format(goblin.name.lower()))
                     print("\n")
                     self.character.gold += goblin.gold 
+                    self.character.score += 1
             else:
                 livingGoblins.append(goblin)
         self.room.goblins = livingGoblins
@@ -339,6 +344,7 @@ class Game (object):
     # Home Teleport function
 
     def teleportHome(self):
+        self.character.health = self.character.Maxhealth
         self.room = None
 
 
