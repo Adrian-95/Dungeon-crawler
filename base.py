@@ -51,6 +51,7 @@ class Character (object):
         self.morale = 3
         self.weapon = None
         self.gold = 0
+        self.score = 0
 
     def fight(self, goblin):
         attack = Dice(self.attack)
@@ -178,6 +179,13 @@ def dungeon( game=None ):
 
         room.description = "This part of the cave is {0} and {1}.\n\nExits: {2}".format(cavesize,wetness, ", ".join(room.exits))
 
+        # Teleport orb roll
+        orbRoll = random.randint(0,9)
+        if not orbRoll:
+            room.description += "\n\nYou can see an altar with a bright glowing orb. Upon looking closely at the orb, you can see your home.\n\n"
+
+            room.cmds = {"use orb":game.teleportHome,"orb":game.teleportHome,"warp home":game.teleportHome}
+
         goblinRoll = random.randint(0,4)
         if goblinRoll == 0:
             pass
@@ -191,9 +199,6 @@ def dungeon( game=None ):
             room.goblins.append(Goblin())
             room.goblins.append(Goblin())
 
-        room.cmds = {"use orb":game.teleportHome,"orb":game.teleportHome,"warp home":game.teleportHome}
-
-    
         yield room
  
 
